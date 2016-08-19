@@ -31,7 +31,6 @@ var router = express.Router();
 
 // Only requests to /api/ will be send to router.
 app.use('/api', sites);
-
 module.exports = app;
 
 app.listen(port);

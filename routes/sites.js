@@ -1,15 +1,18 @@
 
 var Site = require('../models/site');
+var Crawler = require('../services/webcrawler');
+
 var express = require('express');
 var router = express.Router();
 
-
 router.route('/sites')
     .get(function(req,res){
-       Site.find(function(err,sites){if(err)
-                res.send(err);
+       Site.find(function(err,sites){
+            if(err)
+                res.send(err);  
+            console.log(sites);              
            res.json(sites);
-       });
+       }).sort({_id:-1});
     })
 
     .post(function(req,res){
@@ -20,6 +23,27 @@ router.route('/sites')
             res.send({message:'Site Added'});
         });
     });
+
+router.route('/sites/discover/:search')
+    .get(function(req,res){
+       Crawler.getJson(req.params.search, function(data) {
+            var site=new Site(data);
+            site.save(function(err){
+                if(err)
+                    res.send(err);
+                console.log('asdd');
+                //res.send({message:'Site Added'});
+                Site.find(function(err,sites){
+                    console.log(sites);
+                    if(err)
+                        res.send(err);            
+                    res.json(sites);
+                }).sort({_id:-1});
+            });  
+        });
+        //res.json(site);
+    })
+
 
 router.route('/sites/:id')
     .put(function(req,res){
